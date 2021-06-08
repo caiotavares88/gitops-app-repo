@@ -59,7 +59,7 @@ steps:
   args:
   - '-c'
   - |     
-     sed -i ""s/gcr.io\/.*/gcr.io\/${PROJECT_ID}\/my_app\:${SHORT_SHA}/" gitops-env-repo/manifests/deployment.yaml
+    sed -i "s/gcr.io\/.*/gcr.io\/${PROJECT_ID}\/my_app\:${SHORT_SHA}/" gitops-env-repo/manifests/deployment.yaml
 
 # Access the id_github file from Secret Manager, and setup SSH
 - name: 'gcr.io/cloud-builders/git'
