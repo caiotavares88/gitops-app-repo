@@ -58,9 +58,22 @@ steps:
   entrypoint: /bin/sh
   args:
   - '-c'
+  - |     
+     sed -i ""s/gcr.io\/.*/gcr.io\/${PROJECT_ID}\/my_app\:${SHORT_SHA}/" gitops-env-repo/manifests/deployment.yaml
+
+# Access the id_github file from Secret Manager, and setup SSH
+- name: 'gcr.io/cloud-builders/git'
+  secretEnv: ['SSH_KEY']
+  entrypoint: 'bash'
+  args:
+  - -c
   - |
-     sed -i "s/PROJECT_ID/${PROJECT_ID}/" gitops-env-repo/manifests/deployment.yaml && \
-     sed -i "s/COMMIT_ID/${SHORT_SHA}/" gitops-env-repo/manifests/deployment.yaml
+    echo "$$SSH_KEY" >> /root/.ssh/id_rsa
+    chmod 400 /root/.ssh/id_rsa
+    cp workingdir/known_hosts.github /root/.ssh/known_hosts
+  volumes:
+  - name: 'ssh'
+    path: /root/.ssh
 
 # This step pushes the manifest back to gitops-env-repo
 - name: 'gcr.io/cloud-builders/gcloud'
@@ -74,6 +87,9 @@ steps:
     git add manifests/deployment.yaml && \
     git commit -m "Deploying new image ${SHORT_SHA}" && \
     git push origin production
+  volumes:
+  - name: 'ssh'
+    path: /root/.ssh
 
 
 #- name: 'gcr.io/cloud-builders/kubectl'
@@ -85,5 +101,10 @@ steps:
 #  env:
 #  - 'CLOUDSDK_COMPUTE_ZONE=us-central1-c'
 #  - 'CLOUDSDK_CONTAINER_CLUSTER=caio-gke'
+
+availableSecrets:
+  secretManager:
+  - versionName: projects/${PROJECT_ID}/secrets/secret-name/versions/latest
+    env: 'SSH_KEY'
 
 # [END cloudbuild]
