@@ -61,14 +61,28 @@ steps:
      sed -i "s/PROJECT_ID/${PROJECT_ID}/" gitops-env-repo/manifests/deployment.yaml && \
      sed -i "s/COMMIT_ID/${SHORT_SHA}/" gitops-env-repo/manifests/deployment.yaml
 
-- name: 'gcr.io/cloud-builders/kubectl'
-  id: Deploy
+# This step pushes the manifest back to gitops-env-repo
+- name: 'gcr.io/cloud-builders/gcloud'
+  id: Push manifest
+  entrypoint: /bin/sh
   args:
-  - 'apply'
-  - '-f'
-  - 'gitops-env-repo/manifests/deployment.yaml'
-  env:
-  - 'CLOUDSDK_COMPUTE_ZONE=us-central1-c'
-  - 'CLOUDSDK_CONTAINER_CLUSTER=caio-gke'
+  - '-c'
+  - |
+    set -x && \
+    cd gitops-env-repo && \
+    git add manifests/deployment.yaml && \
+    git commit -m "Deploying new image ${SHORT_SHA}" && \
+    git push origin production
+
+
+#- name: 'gcr.io/cloud-builders/kubectl'
+#  id: Deploy
+#  args:
+#  - 'apply'
+#  - '-f'
+#  - 'gitops-env-repo/manifests/deployment.yaml'
+#  env:
+#  - 'CLOUDSDK_COMPUTE_ZONE=us-central1-c'
+#  - 'CLOUDSDK_CONTAINER_CLUSTER=caio-gke'
 
 # [END cloudbuild]
