@@ -65,7 +65,7 @@ steps:
     git clone https://github.com/caiottavares/gitops-env-repo.git && \
     cd gitops-env-repo && \
     git checkout production && \
-    sed -i "s/gcr.io\/.*/gcr.io\/${PROJECT_ID}\/my_app\:${SHORT_SHA}/" gitops-env-repo/manifests/deployment.yaml && \
+    sed -i "s/gcr.io\/.*/gcr.io\/${PROJECT_ID}\/my_app\:${SHORT_SHA}/" manifests/deployment.yaml && \
     git config --global user.email "caio@solartdesign.com.br" && \
     git config --global user.name "Caio Tavares" && \    
     git add manifests/deployment.yaml && \    
