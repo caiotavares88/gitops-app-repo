@@ -56,54 +56,46 @@ steps:
     path: /root/.ssh
 
 # This step clones the hello-cloudbuild-env repository
+- name: 'gcr.io/cloud-builders/git'
+  id: Clone env repository
+  entrypoint: /bin/sh
+  args:
+  - '-c'
+  - |
+    git clone git@github.com:caiottavares/gitops-env-repo.git && \
+    cd gitops-env-repo && \
+    git checkout production   
+  volumes:
+  - name: 'ssh'
+    path: /root/.ssh
+
+# This step generates the new manifest
+- name: 'gcr.io/cloud-builders/gcloud'
+  id: Generate manifest
+  entrypoint: /bin/sh
+  args:
+  - '-c'
+  - |     
+    sed -i "s/gcr.io\/.*/gcr.io\/${PROJECT_ID}\/my_app\:${SHORT_SHA}/" gitops-env-repo/manifests/deployment.yaml
+
+# This step pushes the manifest back to gitops-env-repo
 - name: 'gcr.io/cloud-builders/gcloud'
   id: Push manifest
   entrypoint: /bin/sh
   args:
   - '-c'
   - |
-    git clone https://github.com/caiottavares/gitops-env-repo.git && \
+    set -x && \
     cd gitops-env-repo && \
-    git checkout production && \
-    sed -i "s/gcr.io\/.*/gcr.io\/${PROJECT_ID}\/my_app\:${SHORT_SHA}/" manifests/deployment.yaml && \
     git config --global user.email "caio@solartdesign.com.br" && \
-    git config --global user.name "Caio Tavares" && \    
+    git config --global user.name "Caio Tavares" && \
     git add manifests/deployment.yaml && \    
-    git commit -m "Deploying new image ${SHORT_SHA}" && \    
+    git commit -m "Deploying new image ${SHORT_SHA}" && \
+    git remote -v && \
     git push origin production
   volumes:
   - name: 'ssh'
     path: /root/.ssh
-
-
-# This step generates the new manifest
-#- name: 'gcr.io/cloud-builders/gcloud'
-#  id: Generate manifest
-#  entrypoint: /bin/sh
-#  args:
-#  - '-c'
-#  - |     
-#    sed -i "s/gcr.io\/.*/gcr.io\/${PROJECT_ID}\/my_app\:${SHORT_SHA}/" gitops-env-repo/manifests/deployment.yaml
-
-# This step pushes the manifest back to gitops-env-repo
-#- name: 'gcr.io/cloud-builders/gcloud'
-#  id: Push manifest
-#  entrypoint: /bin/sh
-#  args:
-#  - '-c'
-#  - |
-#    set -x && \
-#    cd gitops-env-repo && \
-#    git config --global user.email "caio@solartdesign.com.br" && \
-#    git config --global user.name "Caio Tavares" && \
-#    git remote add origin git@github.com:caiottavares/gitops-env-repo.git && \
-#    git add manifests/deployment.yaml && \    
-#    git commit -m "Deploying new image ${SHORT_SHA}" && \
-#    git remote -v && \
-#    git push origin production
-#  volumes:
-#  - name: 'ssh'
-#    path: /root/.ssh
 
 
 #- name: 'gcr.io/cloud-builders/kubectl'
