@@ -49,7 +49,8 @@ steps:
   - |
     git clone https://github.com/caiottavares/gitops-env-repo.git && \
     cd gitops-env-repo && \
-    git checkout production 
+    git checkout production && \
+    git config --global user.email "caio@solartdesign.com.br"
 
 # This step generates the new manifest
 - name: 'gcr.io/cloud-builders/gcloud'
