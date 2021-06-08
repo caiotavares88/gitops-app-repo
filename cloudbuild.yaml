@@ -40,6 +40,21 @@ steps:
   - 'push'
   - 'gcr.io/$PROJECT_ID/my_app:$SHORT_SHA'
 
+# Access the id_github file from Secret Manager, and setup SSH
+- name: 'gcr.io/cloud-builders/git'
+  secretEnv: ['SSH_KEY']
+  entrypoint: 'bash'
+  args:
+  - -c
+  - |
+    set -x && \
+    echo "$$SSH_KEY" >> /root/.ssh/id_rsa && \
+    chmod 400 /root/.ssh/id_rsa && \
+    cp workingdir/known_hosts.github /root/.ssh/known_hosts 
+  volumes:
+  - name: 'ssh'
+    path: /root/.ssh
+
 # This step clones the hello-cloudbuild-env repository
 - name: 'gcr.io/cloud-builders/git'
   id: Clone env repository
@@ -60,20 +75,6 @@ steps:
   - '-c'
   - |     
     sed -i "s/gcr.io\/.*/gcr.io\/${PROJECT_ID}\/my_app\:${SHORT_SHA}/" gitops-env-repo/manifests/deployment.yaml
-
-# Access the id_github file from Secret Manager, and setup SSH
-- name: 'gcr.io/cloud-builders/git'
-  secretEnv: ['SSH_KEY']
-  entrypoint: 'bash'
-  args:
-  - -c
-  - |
-    echo "$$SSH_KEY" >> /root/.ssh/id_rsa && \
-    chmod 400 /root/.ssh/id_rsa && \
-    cp workingdir/known_hosts.github /root/.ssh/known_hosts 
-  volumes:
-  - name: 'ssh'
-    path: /root/.ssh
 
 # This step pushes the manifest back to gitops-env-repo
 - name: 'gcr.io/cloud-builders/gcloud'
