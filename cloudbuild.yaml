@@ -64,8 +64,7 @@ steps:
   - |
     git clone https://github.com/caiottavares/gitops-env-repo.git && \
     cd gitops-env-repo && \
-    git checkout production && \
-    git config --global user.email "caio@solartdesign.com.br"
+    git checkout production   
 
 # This step generates the new manifest
 - name: 'gcr.io/cloud-builders/gcloud'
@@ -87,7 +86,8 @@ steps:
     cd gitops-env-repo && \
     git add manifests/deployment.yaml && \
     git commit -m "Deploying new image ${SHORT_SHA}" && \
-    git remote add origin https://github.com/caiottavares/gitops-env-repo.git && \
+    git remote -v && \
+    git config --global user.email "caio@solartdesign.com.br" && \
     git push origin production
   volumes:
   - name: 'ssh'
