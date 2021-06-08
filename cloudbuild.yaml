@@ -84,10 +84,11 @@ steps:
   - |
     set -x && \
     cd gitops-env-repo && \
-    git add manifests/deployment.yaml && \
-    git commit -m "Deploying new image ${SHORT_SHA}" && \
-    git remote -v && \
     git config --global user.email "caio@solartdesign.com.br" && \
+    git config --global user.name "Caio Tavares" && \
+    git add manifests/deployment.yaml && \    
+    git commit -m "Deploying new image ${SHORT_SHA}" && \
+    git remote -v && \    
     git push origin production
   volumes:
   - name: 'ssh'
