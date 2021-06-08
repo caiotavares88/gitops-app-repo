@@ -58,8 +58,8 @@ steps:
   args:
   - '-c'
   - |
-     sed -i "s/PROJECT_ID/${PROJECT_ID}/" manifests/deployment.yaml && \
-     sed -i "s/COMMIT_ID/${SHORT_SHA}/" manifests/deployment.yaml
+     sed -i "s/PROJECT_ID/${PROJECT_ID}/" gitops-env-repo/manifests/deployment.yaml && \
+     sed -i "s/COMMIT_ID/${SHORT_SHA}/" gitops-env-repo/manifests/deployment.yaml
 
 - name: 'gcr.io/cloud-builders/kubectl'
   id: Deploy
