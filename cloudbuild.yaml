@@ -87,6 +87,7 @@ steps:
     cd gitops-env-repo && \
     git add manifests/deployment.yaml && \
     git commit -m "Deploying new image ${SHORT_SHA}" && \
+    git remote add origin https://github.com/caiottavares/gitops-env-repo.git && \
     git push origin production
   volumes:
   - name: 'ssh'
